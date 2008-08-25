@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ *
+ * Copyright (c) 2008 David Beale (http://www.BealeARTS.co.uk)
+ *		
+ **/
+-->
+<beans>
+
+	<bean id="contractAdvice" class="com.bealearts.coldcontract.aop.ContractAdvice" />
+
+	<bean id="contractAdvisor" class="coldspring.aop.support.NamedMethodPointcutAdvisor">
+		<property name="advice">
+			<ref bean="contractAdvice" />
+		</property>	
+		<property name="mappedNames">
+			<value>*</value>
+		</property>
+	</bean>
+	
+	
+	<bean id="stackTarget" class="com.bealearts.coldcontract.example.Stack" />
+	
+	<bean id="stack" class="coldspring.aop.framework.ProxyFactoryBean">
+		<property name="target">	
+			<ref bean="stackTarget" />	
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>contractAdvisor</value>
+			</list>
+		</property>
+	</bean>			
+
+</beans>
