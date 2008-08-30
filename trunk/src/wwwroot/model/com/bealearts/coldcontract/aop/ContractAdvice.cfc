@@ -37,16 +37,21 @@
 		<!--- Copy existing object state --->
 		<cfset oldObject = duplicate(arguments.methodInvocation.getTarget()) />
 		
+		<!--- Inject getVariables function --->
+		<cfset oldObject.getVariablesScope = variables.contract.getVariablesScope />
+		<cfset arguments.methodInvocation.getTarget().evaluateAssertion = variables.contract.evaluateAssertion />
 				 
 		<cfset contract.validatePre( arguments.methodInvocation.getTarget(), methodName, args ) />
 			
 		<cfset rtn = arguments.methodInvocation.proceed() />
 		
 		<cfif isDefined('rtn')>
-			<cfset contract.validatePost( arguments.methodInvocation.getTarget(), methodName, args, oldObject, rtn ) />
+			<cfset variables.contract.validatePost( arguments.methodInvocation.getTarget(), methodName, args, oldObject, rtn ) />
+			<cfset structDelete(arguments.methodInvocation.getTarget(), 'evaluateAssertion') />
 			<cfreturn rtn />
 		<cfelse>
-			<cfset contract.validatePost( arguments.methodInvocation.getTarget(), methodName, args, oldObject ) />
+			<cfset variables.contract.validatePost( arguments.methodInvocation.getTarget(), methodName, args, oldObject ) />
+			<cfset structDelete(arguments.methodInvocation.getTarget(), 'evaluateAssertion') />
 		</cfif>
 	
 	</cffunction>
@@ -54,6 +59,6 @@
 	
 	<!--- PRIVATE --->
 	
-	<cfset contract = createObject("component", "com.bealearts.coldcontract.Contract").init( false ) />
+	<cfset variables.contract = createObject("component", "com.bealearts.coldcontract.Contract").init( true ) />
 	
 </cfcomponent>

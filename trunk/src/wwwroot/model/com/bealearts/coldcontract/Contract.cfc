@@ -94,7 +94,7 @@
 			<cftry>
 			
 				<!--- Test the assertion --->
-				<cfif not variables.evaluateAssertion(arguments.obj, assertion, structNew()) >
+				<cfif not arguments.obj.evaluateAssertion(assertion, structNew()) >
 					<cfthrow type="com.bealearts.coldcontract.Contract.INVARIANT_ASSERTION_FAILED" message="Invariant Assertion Failed: '#assertion#' for CFC '#getMetaData(arguments.obj).fullname#'" />
 				</cfif>
 			
@@ -137,7 +137,7 @@
 			<cftry>
 			
 				<!--- Test the assertion --->
-				<cfif not variables.evaluateAssertion(arguments.obj, assertion, arguments.args) >
+				<cfif not arguments.obj.evaluateAssertion(assertion, arguments.args) >
 					<cfthrow type="com.bealearts.coldcontract.Contract.PRECONDITION_ASSERTION_FAILED" message="Precondition Assertion Failed: '#assertion#' for method '#arguments.methodName#' in CFC '#getMetaData(arguments.obj).fullname#'" />
 				</cfif>
 			
@@ -183,7 +183,7 @@
 			<cftry>
 
 				<!--- Test the assertion --->
-				<cfif not variables.evaluateAssertion(arguments.obj, assertion, arguments.args, arguments.rtn, arguments.oldObj) >
+				<cfif not arguments.obj.evaluateAssertion(assertion, arguments.args, arguments.rtn, arguments.oldObj) >
 					<cfthrow type="com.bealearts.coldcontract.Contract.POSTCONDITION_ASSERTION_FAILED" message="Postcondition Assertion Failed: '#assertion#' for method '#arguments.methodName#' in CFC '#getMetaData(arguments.obj).fullname#'" />
 				</cfif>
 			
@@ -204,36 +204,28 @@
 	</cffunction>
 
 
-
 	<cffunction name="evaluateAssertion"
 		hint="Evaluate an Assertion on the Object"
-		access="private"
+		access="public"
 		output="false"
 		returnType="boolean"
 	>
-	>
-		<cfargument name="obj" hint="Object to validate" type="any" required="true">
 		<cfargument name="assertion" hint="Assertion to Evaluate" type="string" required="true" /> 
 		<cfargument name="methodArgs" hint="Arguments passed to Method" type="struct" required="true" />
 		<cfargument name="methodReturn" hint="Result of Method" type="any" required="false" default="NO_RETURN" />
-		<cfargument name="oldObj" hint="Object before method was called" type="any" required="false" default="">
+		<cfargument name="oldObj" hint="Object before method was called" type="any" required="false" default="" />
 		
 		<!--- LOCALS --->
-		<cfset var self = "" />
-		<cfset var assertionResult = false />
 		<cfset var thisArguments = structNew() />
+
 
 		<!--- Save this methods arguments as they will be wiped over --->
 		<cfset thisArguments = structCopy(arguments) />
 		
 		<!---
-	 		Create a fake contract object environment to run assertion in.
-	 		This method means asserstions can not use local scope or variables scope.
+	 		Setup fake object environment to run assertion in.
 		 --->
-		
-		<!--- reference contract object as self --->
-		<cfset self = thisArguments.obj />
-		
+				
 		<!--- reference method's Arguments as arguments --->
 		<cfset arguments = thisArguments.methodArgs />
 		
@@ -243,17 +235,28 @@
 		</cfif>
 		
 		<!--- reference to contract object before method was called as oldSelf --->
+		<!--- reference to contract object variables scope before method was called as oldVariables --->
 		<cfif isObject(thisArguments.oldObj) >
-			<cfset oldSelf = thisArguments.oldObj />				
+			<cfset oldThis = thisArguments.oldObj />
+			<cfset oldVariables = thisArguments.oldObj.getVariablesScope() />				
 		</cfif>		
+				
 		
-<!--- http://www.javaworld.com/javaworld/jw-02-2001/jw-0216-cooltools.html?page=4 --->
-
 		<!--- Evaluate Assertion within the fake contract object environment --->
-		<cfset assertionResult = evaluate( thisArguments.assertion ) />
-		
-		<cfreturn assertionResult />
+		<cfreturn evaluate( thisArguments.assertion ) />
+	</cffunction>	
+
+
+
+	<cffunction name="getVariablesScope"
+		hint="Get variables scope"
+		access="public"
+		output="false"
+		returnType="struct"
+	>
+		<cfreturn variables />
 	</cffunction>
+
 	
 	
 </cfcomponent>

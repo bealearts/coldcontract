@@ -19,7 +19,7 @@
 
 <cfoutput>#variables.stack.pop()#</cfoutput>
 <cfoutput>#variables.stack.pop()#</cfoutput>
-<!---><cfoutput>#variables.stack.pop()#</cfoutput>--->  <!--- Should fail precondition --->
+<!---<cfoutput>#variables.stack.pop()#</cfoutput>--->  <!--- Should fail precondition --->
 
 <!---<cfset variables.stack.push(variables.stack) />--->  <!--- Should fail precondition --->
 
