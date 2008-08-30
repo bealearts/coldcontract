@@ -8,7 +8,7 @@
 
 <cfcomponent displayname="Stack"
 	hint="A FILO Stack example showing the use of ColdContract assertions. Stack items cannot be objects (Components)."
-	invariants="self.getNumberOfItems() gte 0"
+	invariants="this.getNumberOfItems() gte 0"
 >
 	
 	<!--- INIT --->
@@ -31,7 +31,7 @@
 		returnType="void"
 		output="false"
 		preconditions="not isObject(arguments.item)"
-		postconditions="self.getNumberOfItems() eq oldSelf.getNumberOfItems() + 1"
+		postconditions="this.getNumberOfItems() eq oldThis.getNumberOfItems() + 1, variables.stackIndex eq oldVariables.stackIndex + 1"
 	>
 		<cfargument name="item" hint="Item to add" type="any" required="true" />
 		
@@ -46,8 +46,8 @@
 		access="public"
 		returnType="any"
 		output="false"
-		preconditions="self.getNumberOfItems() gt 0"
-		postconditions="self.getNumberOfItems() eq oldSelf.getNumberOfItems() - 1, not isObject(cfreturn)"
+		preconditions="this..getNumberOfItems() gt 0"
+		postconditions="this.getNumberOfItems() eq oldThis.getNumberOfItems() - 1, not isObject(cfreturn), variables.stackIndex eq oldVariables.stackIndex - 1"
 	>
 	
 		<!--- LOCALS --->
